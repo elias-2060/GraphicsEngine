@@ -1,0 +1,6 @@
+# ninja log v5
+329	384	1676475183838555510	engine	651fcf4042aebd74
+5	388	6982780580723186	CMakeFiles/engine.dir/easy_image.cc.obj	e0f29827c2f0c672
+437	654	6982782234440507	engine.exe	f87bc2362c1b9a1e
+2	436	6982782232280523	CMakeFiles/engine.dir/engine.cc.obj	c6d80527148fbbcd
+6	875	6982674997618405	CMakeFiles/engine.dir/ini_configuration.cc.obj	bad265274c5eb5c5
