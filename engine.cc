@@ -6,7 +6,6 @@
 #include <stdexcept>
 #include <string>
 #include "cmath"
-#include "limits"
 #include "l_parser.h"
 #include "stack"
 
@@ -39,13 +38,11 @@ EasyImage draw2DLines(Lines2D &lines, const int size, Color &backgroundColor){
         if (line.p2.y > yMax)
             yMax = line.p2.y;
     }
-
     double xRange = xMax - xMin;
     double yRange = yMax - yMin;
     double imageX = size * (xRange / (max(xRange, yRange)));
     double imageY = size * (yRange / (max(xRange, yRange)));
     double d = 0.95 * (imageX / xRange);
-
     EasyImage image(imageX,imageY, backgroundColor);
 
     for (auto &line : lines) {
@@ -69,70 +66,68 @@ EasyImage draw2DLines(Lines2D &lines, const int size, Color &backgroundColor){
     /// draw the lines
     for (const auto& line : lines){
         image.draw_line(::lround(line.p1.x), ::lround(line.p1.y), ::lround(line.p2.x), ::lround(line.p2.y), Color(
-                ::lround(line.color.red), ::lround(line.color.green), ::lround(line.color.blue)));
+                line.color.red, line.color.green, line.color.blue));
 
     }
     return image;
 }
 
-void getReplacements(const LParser::LSystem2D &parser, vector<string>& v){
-    int iterations = parser.get_nr_iterations();
-    for (int i = 0; i < iterations; ++i) {
-        string newString;
-        for (char j: v[i] ){
-            if (j == '+' or j == '-' or j == '(' or j == ')'){
-                newString += j;
-            }
-            else
-                newString += parser.get_replacement(j);
-        }
-        v.push_back(newString);
+string getReplacements(const string &str, const LParser::LSystem2D &parser, int iterations){
+    if (iterations == 0)
+        return str;
+
+    string newString;
+
+    for (char j: str) {
+        if (j == '+' or j == '-' or j == '(' or j == ')')
+            newString += j;
+        else
+            newString += parser.get_replacement(j);
     }
+    iterations--;
+    return getReplacements(newString, parser, iterations);
 }
 
 EasyImage draw2DLSystem(const LParser::LSystem2D &parser, const int size, const vector<double>& lineColor, const vector<double>& backgroundcolor){
     Lines2D lines;
-    vector<string> strings;
-    strings.push_back(parser.get_initiator());
-    getReplacements(parser, strings);
+    string strings = getReplacements(parser.get_initiator(), parser, parser.get_nr_iterations());
     double angle = parser.get_starting_angle() * (M_PI / 180);
     Point2D pos(0,0);
     stack<vector<double>> stack;
-
-    for (auto & string : strings) {
-        for (char j: string){
-            if (j == '+'){
-                angle += parser.get_angle() * (M_PI / 180);
-            }
-            else if (j == '-'){
-                angle -= parser.get_angle() * (M_PI / 180);
-            }
-            else if (j == '('){
-                vector<double> temp;
-                temp.push_back(pos.x);
-                temp.push_back(pos.y);
-                temp.push_back(angle);
-                stack.push(temp);
-            }
-            else if (j == ')'){
-                vector<double> temp = stack.top();
-                stack.pop();
-                pos.x = temp[0];
-                pos.y = temp[1];
-                angle = temp[2];
-            }
-            else{
-                Point2D prevPos = pos;
-                pos.x += cos(angle);
-                pos.y += sin(angle);
-                if (parser.draw(j)){
-                    Color color(::lround(lineColor[0]* 255), ::lround(lineColor[1] * 255), ::lround(lineColor[2] * 255));
-                    lines.emplace_back(prevPos, pos, Color(color));
-                }
+    for (char j: strings){
+        if (j == '+'){
+            angle += parser.get_angle() * (M_PI / 180);
+        }
+        else if (j == '-'){
+            angle -= parser.get_angle() * (M_PI / 180);
+        }
+        else if (j == '('){
+            vector<double> temp;
+            temp.push_back(pos.x);
+            temp.push_back(pos.y);
+            temp.push_back(angle);
+            stack.push(temp);
+        }
+        else if (j == ')'){
+            vector<double> temp = stack.top();
+            stack.pop();
+            pos.x = temp[0];
+            pos.y = temp[1];
+            angle = temp[2];
+        }
+        else{
+            Point2D prevPos = pos;
+            pos.x += cos(angle);
+            pos.y += sin(angle);
+            if (parser.draw(j)){
+                Color color(lineColor[0], lineColor[1], lineColor[2]);
+                lines.emplace_back(prevPos, pos, Color(color));
             }
         }
     }
-    return draw2DLines(lines, size, (Color &) backgroundcolor);
+
+    Color c(backgroundcolor[0], backgroundcolor[1], backgroundcolor[2]);
+    return draw2DLines(lines, size, c);
 }
 
 
@@ -143,7 +138,8 @@ img::EasyImage generate_image(const ini::Configuration &configuration){
     vector<double> backgroundcolor = configuration["General"]["backgroundcolor"].as_double_tuple_or_die();
 
     if (type == "2DLSystem") {
-        string inputfile = configuration["2DLSystem"]["inputfile"].as_string_or_die();
+        string inputfile = "files/";
+        inputfile += configuration["2DLSystem"]["inputfile"].as_string_or_die();
         vector<double> lineColor = configuration["2DLSystem"]["color"].as_double_tuple_or_die();
         LParser::LSystem2D parser;
         ifstream input_stream(inputfile);

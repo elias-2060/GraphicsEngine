@@ -21,6 +21,7 @@
 #include <vector>
 #include <iostream>
 #include "list"
+#include "cmath"
 /**
  * \brief The namespace of the EasyImage class
  */
@@ -65,6 +66,11 @@ namespace img
 			 *
 			 */
 			Color(uint8_t r, uint8_t g, uint8_t b);
+            Color(double r, double g, double b){
+                red = lround(r * 255);
+                green = lround(g * 255);
+                blue = lround(b * 255);
+            }
 
 			/**
 			 * Destructor
