@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(engine)
+project(GraphicEngine)
 
 ############################################################
 # Set compiler flags
@@ -15,11 +15,11 @@ set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${OWN_GXX_FLAGS}")
 # List all sources
 ############################################################
 set(engine_sources
-		intro
-	easy_image.cc
-	engine.cc
-	ini_configuration.cc
-        l_parser.h l_parser.cc)
+		2dLsystemen
+		easy_image.cc
+		engine.cc
+		ini_configuration.cc
+		l_parser.h l_parser.cc vector3d.h vector3d.cc D3LSystem.h D3LSystem.cpp Figure.h Figure.cpp Face.h)
 
 ############################################################
 # Create an executable

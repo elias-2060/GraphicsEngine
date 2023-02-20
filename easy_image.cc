@@ -349,7 +349,7 @@ std::istream& img::operator>>(std::istream& in, EasyImage & image)
 	if (le32toh(header.header_size) != sizeof(header))
 		throw UnsupportedFileTypeException("Could not parse BMP File: Unsupported BITMAPV5HEADER size");
 	if (le32toh(header.compress_type) != 0)
-		throw UnsupportedFileTypeException("Could not parse BMP File: Only uncompressed BMP files can be parsed");
+		throw UnsupportedFileTypeException("Could not parse BMP File: Only uncompressed BMP 2dLsystemen can be parsed");
 	if (le32toh(header.nplanes) != 1)
 		throw UnsupportedFileTypeException("Could not parse BMP File: Only one plane should exist in the BMP file");
 	if (le32toh(header.bits_per_pixel) != 24)

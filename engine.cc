@@ -3,11 +3,11 @@
 #include "ini_configuration.h"
 #include <fstream>
 #include <iostream>
-#include <stdexcept>
 #include <string>
 #include "cmath"
 #include "l_parser.h"
 #include "stack"
+#include "D3LSystem.h"
 
 using namespace img;
 using namespace std;
@@ -125,9 +125,26 @@ EasyImage draw2DLSystem(const LParser::LSystem2D &parser, const int size, const 
             }
         }
     }
-
     Color c(backgroundcolor[0], backgroundcolor[1], backgroundcolor[2]);
     return draw2DLines(lines, size, c);
+}
+EasyImage draw3DLSystem(const LParser::LSystem2D &parser, const int size, const vector<double>& backgroundcolor, const ini::Configuration &configuration){
+    D3LSystem system;
+    int nrFigures = configuration["General"]["nrFigures"].as_int_or_die();
+    vector<double> eye = configuration["General"]["eye"].as_double_tuple_or_die();
+    for (int i = 0; i < nrFigures; ++i) {
+        Vector3D eyePoint;
+        eyePoint.x = eye[0];
+        eyePoint.y = eye[1];
+        eyePoint.z = eye[2];
+        Matrix eyeMatrix = system.eyePointTrans(eyePoint);
+        string figName = "Figure" + to_string(i);
+        Figure figure;
+
+
+    }
+
+
 }
 
 
@@ -136,9 +153,9 @@ img::EasyImage generate_image(const ini::Configuration &configuration){
     string type = configuration["General"]["type"].as_string_or_die();
     int size = configuration["General"]["size"].as_int_or_die();
     vector<double> backgroundcolor = configuration["General"]["backgroundcolor"].as_double_tuple_or_die();
-
+    int nrFigures = configuration["General"]["nrFigures"].as_int_or_die();
+    string inputfile = "2dLsystemen/";
     if (type == "2DLSystem") {
-        string inputfile = "files/";
         inputfile += configuration["2DLSystem"]["inputfile"].as_string_or_die();
         vector<double> lineColor = configuration["2DLSystem"]["color"].as_double_tuple_or_die();
         LParser::LSystem2D parser;
@@ -146,6 +163,14 @@ img::EasyImage generate_image(const ini::Configuration &configuration){
         input_stream >> parser;
         input_stream.close();
         image = draw2DLSystem(parser, size, lineColor, backgroundcolor);
+    }
+    else if (type == "Wireframe"){
+        inputfile += configuration["2DLSystem"]["inputfile"].as_string_or_die();
+        LParser::LSystem2D parser;
+        ifstream input_stream(inputfile);
+        input_stream >> parser;
+        input_stream.close();
+        image = draw3DLSystem(parser, size, backgroundcolor, configuration);
     }
 	return image;
 }

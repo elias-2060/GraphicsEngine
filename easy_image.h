@@ -22,6 +22,7 @@
 #include <iostream>
 #include "list"
 #include "cmath"
+#include "Figure.h"
 /**
  * \brief The namespace of the EasyImage class
  */
@@ -35,7 +36,7 @@ namespace img
 		//a safety warning to all of you: Do *NOT* rearrange the 'color components' in this class
 		//easyimage expects these three fields to be the *first* fields in the class AND expects
 		//them to be in *this* order
-		//if you alter the arrangement, the generated BMP files will contain garbage
+		//if you alter the arrangement, the generated BMP 2dLsystemen will contain garbage
 		public:
 			/**
 			 * \brief The intensity of the blue color component
@@ -84,8 +85,14 @@ namespace img
             x = xx;
             y = yy;
         }
+        Point2D(double xx, double yy, double zz){
+            x = xx;
+            y = yy;
+            z = zz;
+        }
         double x;
         double y;
+        double z;
     };
 
     class Line2D{
