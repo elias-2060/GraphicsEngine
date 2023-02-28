@@ -9,8 +9,8 @@
 #include "stack"
 #include "D3LSystem.h"
 
-using namespace img;
 using namespace std;
+using namespace img;
 
 EasyImage draw2DLines(Lines2D &lines, const int size, Color &backgroundColor){
     double xMin = lines.begin()->p1.x;
@@ -121,14 +121,14 @@ EasyImage draw2DLSystem(const LParser::LSystem2D &parser, const int size, const 
             pos.y += sin(angle);
             if (parser.draw(j)){
                 Color color(lineColor[0], lineColor[1], lineColor[2]);
-                lines.emplace_back(prevPos, pos, Color(color));
+                lines.emplace_back(prevPos, pos, color);
             }
         }
     }
     Color c(backgroundcolor[0], backgroundcolor[1], backgroundcolor[2]);
     return draw2DLines(lines, size, c);
 }
-EasyImage draw3DLSystem(const LParser::LSystem2D &parser, const int size, const vector<double>& backgroundcolor, const ini::Configuration &configuration){
+EasyImage draw3DLSystem(const int size, const vector<double>& backgroundcolor, const ini::Configuration &configuration){
     D3LSystem system;
     int nrFigures = configuration["General"]["nrFigures"].as_int_or_die();
     vector<double> eye = configuration["General"]["eye"].as_double_tuple_or_die();
@@ -139,21 +139,18 @@ EasyImage draw3DLSystem(const LParser::LSystem2D &parser, const int size, const 
         eyePoint.z = eye[2];
         Matrix eyeMatrix = system.eyePointTrans(eyePoint);
         string figName = "Figure" + to_string(i);
-        Figure figure;
-
-
+        system.createFigure(configuration,figName, eyeMatrix);
     }
-
-
+    Lines2D lines2D = system.doProjection();
+    Color c(backgroundcolor[0], backgroundcolor[1], backgroundcolor[2]);
+    return draw2DLines(lines2D, size,c);
 }
-
 
 img::EasyImage generate_image(const ini::Configuration &configuration){
     EasyImage image;
     string type = configuration["General"]["type"].as_string_or_die();
     int size = configuration["General"]["size"].as_int_or_die();
     vector<double> backgroundcolor = configuration["General"]["backgroundcolor"].as_double_tuple_or_die();
-    int nrFigures = configuration["General"]["nrFigures"].as_int_or_die();
     string inputfile = "2dLsystemen/";
     if (type == "2DLSystem") {
         inputfile += configuration["2DLSystem"]["inputfile"].as_string_or_die();
@@ -165,12 +162,10 @@ img::EasyImage generate_image(const ini::Configuration &configuration){
         image = draw2DLSystem(parser, size, lineColor, backgroundcolor);
     }
     else if (type == "Wireframe"){
-        inputfile += configuration["2DLSystem"]["inputfile"].as_string_or_die();
-        LParser::LSystem2D parser;
-        ifstream input_stream(inputfile);
-        input_stream >> parser;
-        input_stream.close();
-        image = draw3DLSystem(parser, size, backgroundcolor, configuration);
+        image = draw3DLSystem(size, backgroundcolor, configuration);
+    }
+    else if (type == "ZBufferedWireframe"){
+
     }
 	return image;
 }

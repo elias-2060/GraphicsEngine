@@ -19,7 +19,7 @@ set(engine_sources
 		easy_image.cc
 		engine.cc
 		ini_configuration.cc
-		l_parser.h l_parser.cc vector3d.h vector3d.cc D3LSystem.h D3LSystem.cpp Figure.h Figure.cpp Face.h)
+		l_parser.h l_parser.cc vector3d.h vector3d.cc D3LSystem.h D3LSystem.cpp Figure.h Face.h ZBuffer.h ZBuffer.cpp)
 
 ############################################################
 # Create an executable

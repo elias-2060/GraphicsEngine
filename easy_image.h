@@ -22,7 +22,8 @@
 #include <iostream>
 #include "list"
 #include "cmath"
-#include "Figure.h"
+#include "limits"
+#include "ZBuffer.h"
 /**
  * \brief The namespace of the EasyImage class
  */
@@ -73,6 +74,14 @@ namespace img
                 blue = lround(b * 255);
             }
 
+            std::vector<double> print(){
+                std::vector<double> v;
+                v.push_back(red);
+                v.push_back(green);
+                v.push_back(blue);
+                return v;
+            }
+
 			/**
 			 * Destructor
 			 */
@@ -97,17 +106,19 @@ namespace img
 
     class Line2D{
     public:
-        Line2D(Point2D &pf, Point2D &ps, const Color& col): p1(pf), p2(ps), color(col){}
+        Line2D(Point2D &pf, Point2D &ps,  Color& col): p1(pf), p2(ps), color(col){}
         Point2D p1;
         Point2D p2;
         Color color;
+        double z1;
+        double z2;
     };
-
     using Lines2D = std::list<Line2D>;
 
 
 
-	/**
+
+    /**
 	 * \brief The exception that is thrown when an error occurs while trying to read an img::EasyImage from an input stream
 	 */
 	class UnsupportedFileTypeException: public std::exception
@@ -255,6 +266,7 @@ namespace img
 			 * 	assert(y1 < getHeight())
 			 */
 			void draw_line(unsigned int x0, unsigned int y0, unsigned int x1, unsigned int y1, Color color);
+        void draw_zbuf_line(ZBuffer &zBuffer, const unsigned int x0, const unsigned int y0, const double z0, const unsigned int x1, const unsigned int y1, const double z1, const Color &color);
 
 		private:
 			friend std::istream& operator>>(std::istream& in, EasyImage & image);

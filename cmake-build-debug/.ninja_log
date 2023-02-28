@@ -1,9 +1,11 @@
 # ninja log v5
 329	384	1676475183838555510	engine	651fcf4042aebd74
-2	398	6986290356623626	build.ninja	1d65ce8172c5571f
-802	1223	6986138091244117	engine.exe	60f6ff3cc0d10697
-2	777	6986138086820246	CMakeFiles/engine.dir/easy_image.cc.obj	d15e1b752af2e1f
-7	802	6986138087050259	CMakeFiles/engine.dir/engine.cc.obj	5c9700665bab3a69
+2	398	6993222957936252	build.ninja	1d65ce8172c5571f
+932	1418	6988120385115956	engine.exe	8d3cf7b3ba3f4267
+3	454	6988024409107576	CMakeFiles/engine.dir/easy_image.cc.obj	d15e1b752af2e1f
+2	682	6988082372230348	CMakeFiles/engine.dir/engine.cc.obj	5c9700665bab3a69
 11	1052	6983806539948642	CMakeFiles/engine.dir/ini_configuration.cc.obj	56a13d12ebeab326
 16	821	6983806537648640	CMakeFiles/engine.dir/l_parser.cc.obj	ddfc94e269a54aa9
 11	766	6986138086710261	CMakeFiles/engine.dir/vector3d.cc.obj	488b5f237e973783
+14	314	6988024407707586	CMakeFiles/engine.dir/Figure.cpp.obj	80968808b0ffeb30
+3	932	6988120380265956	CMakeFiles/engine.dir/D3LSystem.cpp.obj	9e64f3a2a6ada3e1

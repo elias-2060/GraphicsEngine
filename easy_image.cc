@@ -262,6 +262,96 @@ void img::EasyImage::draw_line(unsigned int x0, unsigned int y0, unsigned int x1
 		}
 	}
 }
+
+void img::EasyImage::draw_zbuf_line(ZBuffer &zBuffer, unsigned int x0, unsigned int y0, const double z0, unsigned int x1, unsigned int y1, const double z1, const Color &color) {
+    if (x0 >= this->width || y0 >= this->height || x1 >= this->width || y1 > this->height) {
+        std::stringstream ss;
+        ss << "Drawing line from (" << x0 << "," << y0 << ") to (" << x1 << "," << y1 << ") in image of width "
+           << this->width << " and height " << this->height;
+        throw std::runtime_error(ss.str());
+    }
+    if (x0 == x1)
+    {
+        //special case for x0 == x1
+        double min = std::min(y0, y1);
+        double max = std::max(y0, y1);
+        double a = max - min;
+        for (unsigned int i = min; i <= max; i++)
+        {
+            double p = (a - (i - min))/a;
+            double zi = p/z0 + (1 - p)/z1;
+            if((zi) < (zBuffer.buf[x0][i])){
+                (*this)(x0, i) = color;
+                zBuffer.buf[x0][i] = zi;
+            }
+        }
+    }
+    else if (y0 == y1)
+    {
+        //special case for y0 == y1
+        double min = std::min(x0, x1);
+        double max = std::max(x0, x1);
+        double a = max - min;
+        for (unsigned int i = min; i <= max; i++)
+        {
+            double p = (a - (i - min))/a;
+            double zi = p/z0 + (1 - p)/z1;
+            if((zi) < (zBuffer.buf[i][y0])){
+                (*this)(i, y0) = color;
+                zBuffer.buf[i][y0] = zi;
+            }
+        }
+    }
+    else
+    {
+        if (x0 > x1)
+        {
+            //flip points if x1>x0: we want x0 to have the lowest value
+            std::swap(x0,x1);
+            std::swap(y0, y1);
+        }
+        double m = ((double) y1 - (double) y0) / ((double) x1 - (double) x0);
+        if (-1.0 <= m && m <= 1.0)
+        {
+            double a = (x1 - x0);
+            for (unsigned int i = 0; i <= (x1 - x0); i++)
+            {
+                double p = (a - i)/a;
+                double zi = p/z0 + (1 - p)/z1;
+                if((zi) < (zBuffer.buf[x0 + i][(unsigned int) round(y0 + m * i)])){
+                    (*this)(x0 + i, (unsigned int) round(y0 + m * i)) = color;
+                    zBuffer.buf[x0 + i][(unsigned int) round(y0 + m * i)] = zi;
+                }
+            }
+        }
+        else if (m > 1.0)
+        {
+            double a = (y1 - y0);
+            for (unsigned int i = 0; i <= (y1 - y0); i++)
+            {
+                double p = (a - i)/a;
+                double zi = p/z0 + (1 - p)/z1;
+                if((zi) < (zBuffer.buf[(unsigned int) round(x0 + (i / m))][y0 + i])){
+                    (*this)((unsigned int) round(x0 + (i / m)), y0 + i) = color;
+                    zBuffer.buf[(unsigned int) round(x0 + (i / m))][y0 + i] = zi;
+                }
+            }
+        }
+        else if (m < -1.0)
+        {
+            double a = (y0 - y1);
+            for (unsigned int i = 0; i <= a; i++)
+            {
+                double p = (a - i)/a;
+                double zi = p/z0 + (1 - p)/z1;
+                if((zi) < (zBuffer.buf[(unsigned int) round(x0 - (i / m))][y0 - i])){
+                    (*this)((unsigned int) round(x0 - (i / m)), y0 - i) = color;
+                    zBuffer.buf[(unsigned int) round(x0 - (i / m))][y0 - i] = zi;
+                }
+            }
+        }
+    }
+}
 std::ostream& img::operator<<(std::ostream& out, EasyImage const& image)
 {
 
