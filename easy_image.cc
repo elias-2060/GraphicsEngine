@@ -279,10 +279,10 @@ void img::EasyImage::draw_zbuf_line(ZBuffer &zBuffer, unsigned int x0, unsigned 
         for (unsigned int i = min; i <= max; i++)
         {
             double p = (a - (i - min))/a;
-            double zi = p/z0 + (1 - p)/z1;
-            if((zi) < (zBuffer.buf[x0][i])){
+            double zI = p / z0 + (1 - p) / z1;
+            if((zI) < (zBuffer.buf[x0][i])){
                 (*this)(x0, i) = color;
-                zBuffer.buf[x0][i] = zi;
+                zBuffer.buf[x0][i] = zI;
             }
         }
     }
@@ -295,10 +295,10 @@ void img::EasyImage::draw_zbuf_line(ZBuffer &zBuffer, unsigned int x0, unsigned 
         for (unsigned int i = min; i <= max; i++)
         {
             double p = (a - (i - min))/a;
-            double zi = p/z0 + (1 - p)/z1;
-            if((zi) < (zBuffer.buf[i][y0])){
+            double zI = p / z0 + (1 - p) / z1;
+            if((zI) < (zBuffer.buf[i][y0])){
                 (*this)(i, y0) = color;
-                zBuffer.buf[i][y0] = zi;
+                zBuffer.buf[i][y0] = zI;
             }
         }
     }
@@ -313,40 +313,40 @@ void img::EasyImage::draw_zbuf_line(ZBuffer &zBuffer, unsigned int x0, unsigned 
         double m = ((double) y1 - (double) y0) / ((double) x1 - (double) x0);
         if (-1.0 <= m && m <= 1.0)
         {
-            double a = (x1 - x0);
+            double a = x1 - x0;
             for (unsigned int i = 0; i <= (x1 - x0); i++)
             {
                 double p = (a - i)/a;
-                double zi = p/z0 + (1 - p)/z1;
-                if((zi) < (zBuffer.buf[x0 + i][(unsigned int) round(y0 + m * i)])){
+                double zI = p / z0 + (1 - p) / z1;
+                if((zI) < (zBuffer.buf[x0 + i][(unsigned int) round(y0 + m * i)])){
                     (*this)(x0 + i, (unsigned int) round(y0 + m * i)) = color;
-                    zBuffer.buf[x0 + i][(unsigned int) round(y0 + m * i)] = zi;
+                    zBuffer.buf[x0 + i][(unsigned int) round(y0 + m * i)] = zI;
                 }
             }
         }
         else if (m > 1.0)
         {
-            double a = (y1 - y0);
+            double a = y1 - y0;
             for (unsigned int i = 0; i <= (y1 - y0); i++)
             {
                 double p = (a - i)/a;
-                double zi = p/z0 + (1 - p)/z1;
-                if((zi) < (zBuffer.buf[(unsigned int) round(x0 + (i / m))][y0 + i])){
+                double zI = p / z0 + (1 - p) / z1;
+                if((zI) < (zBuffer.buf[(unsigned int) round(x0 + (i / m))][y0 + i])){
                     (*this)((unsigned int) round(x0 + (i / m)), y0 + i) = color;
-                    zBuffer.buf[(unsigned int) round(x0 + (i / m))][y0 + i] = zi;
+                    zBuffer.buf[(unsigned int) round(x0 + (i / m))][y0 + i] = zI;
                 }
             }
         }
         else if (m < -1.0)
         {
-            double a = (y0 - y1);
+            double a = y0 - y1;
             for (unsigned int i = 0; i <= a; i++)
             {
                 double p = (a - i)/a;
-                double zi = p/z0 + (1 - p)/z1;
-                if((zi) < (zBuffer.buf[(unsigned int) round(x0 - (i / m))][y0 - i])){
+                double zI = p / z0 + (1 - p) / z1;
+                if((zI) < (zBuffer.buf[(unsigned int) round(x0 - (i / m))][y0 - i])){
                     (*this)((unsigned int) round(x0 - (i / m)), y0 - i) = color;
-                    zBuffer.buf[(unsigned int) round(x0 - (i / m))][y0 - i] = zi;
+                    zBuffer.buf[(unsigned int) round(x0 - (i / m))][y0 - i] = zI;
                 }
             }
         }

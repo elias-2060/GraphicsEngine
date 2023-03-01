@@ -94,7 +94,7 @@ Lines2D D3LSystem::doProjection() {
     return lines;
 }
 
-void D3LSystem::createFigure(const ini::Configuration &configuration, string &name, const Matrix& eyeMatrix) {
+void D3LSystem::createFigure(const ini::Configuration &configuration, string &name, const Matrix& eyeMatrix, bool zBuffered) {
     int pointCount = configuration[name]["nrPoints"].as_int_or_default(0);
     int lineCount = configuration[name]["nrLines"].as_int_or_default(0);
     string type = configuration[name]["type"].as_string_or_default("");
@@ -148,7 +148,11 @@ void D3LSystem::createFigure(const ini::Configuration &configuration, string &na
         figure = createTorus(r, R, n, m);
     }
     else if (type == "3DLSystem") {
-        string fileName = "wireFrames/";
+        string fileName;
+        if (!zBuffered)
+            fileName = "wireFrames/";
+        else
+            fileName = "zBuffered/";
         fileName += configuration[name]["inputfile"].as_string_or_die();
         LParser::LSystem3D parser;
         ifstream input_stream(fileName);

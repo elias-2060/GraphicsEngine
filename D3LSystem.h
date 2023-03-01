@@ -26,7 +26,7 @@ public:
     void toPolar(const Vector3D &point, double &theta, double &phi, double &r);
     img::Point2D doProjection(const Vector3D &point, const double d);
     img::Lines2D doProjection();
-    void createFigure(const ini::Configuration &configuration, string& name, const Matrix& eyeMatrix);
+    void createFigure(const ini::Configuration &configuration, string& name, const Matrix& eyeMatrix, bool zBuffered);
     Figure create3DLsystem(const LParser::LSystem3D &parser, const vector<double>& color);
     string getReplacements(const string &str, const LParser::LSystem3D &parser, int iterations);
     Figure createCube();

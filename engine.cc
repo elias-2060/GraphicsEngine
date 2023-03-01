@@ -71,6 +71,64 @@ EasyImage draw2DLines(Lines2D &lines, const int size, Color &backgroundColor){
     }
     return image;
 }
+EasyImage drawZBufferLines(Lines2D &lines, const int size, Color &backgroundColor){
+    double xMin = lines.begin()->p1.x;
+    double xMax = lines.begin()->p1.x;
+    double yMin = lines.begin()->p1.y;
+    double yMax = lines.begin()->p1.y;
+
+    /// kleinste en grootste waarde voor x en y zoeken tussen alle punten
+    for (const auto& line : lines){
+        if (line.p1.x < xMin)
+            xMin = line.p1.x;
+        if (line.p1.x > xMax)
+            xMax = line.p1.x;
+        if (line.p1.y < yMin)
+            yMin = line.p1.y;
+        if (line.p1.y > yMax)
+            yMax = line.p1.y;
+
+        if (line.p2.x < xMin)
+            xMin = line.p2.x;
+        if (line.p2.x > xMax)
+            xMax = line.p2.x;
+        if (line.p2.y < yMin)
+            yMin = line.p2.y;
+        if (line.p2.y > yMax)
+            yMax = line.p2.y;
+    }
+    double xRange = xMax - xMin;
+    double yRange = yMax - yMin;
+    double imageX = size * (xRange / (max(xRange, yRange)));
+    double imageY = size * (yRange / (max(xRange, yRange)));
+    double d = 0.95 * (imageX / xRange);
+    EasyImage image(imageX,imageY, backgroundColor);
+
+    for (auto &line : lines) {
+        line.p1.x *= d;
+        line.p1.y *= d;
+        line.p2.x *= d;
+        line.p2.y *= d;
+    }
+
+    double DCx = d * ((xMin + xMax) / 2);
+    double DCy = d * ((yMin + yMax) / 2);
+    double dX = imageX / 2 - DCx;
+    double dY = imageY / 2 - DCy;
+
+    for (auto &line : lines) {
+        line.p1.x += dX;
+        line.p1.y += dY;
+        line.p2.x += dX;
+        line.p2.y += dY;
+    }
+    ZBuffer buff = ZBuffer(imageX,imageY);
+    /// draw the lines
+    for (const auto& line : lines){
+        image.draw_zbuf_line(buff, ::lround(line.p1.x), ::lround(line.p1.y), line.p1.z, ::lround(line.p2.x), ::lround(line.p2.y), line.p2.z, Color(line.color.red, line.color.green, line.color.blue));
+    }
+    return image;
+}
 
 string getReplacements(const string &str, const LParser::LSystem2D &parser, int iterations){
     if (iterations == 0)
@@ -139,11 +197,29 @@ EasyImage draw3DLSystem(const int size, const vector<double>& backgroundcolor, c
         eyePoint.z = eye[2];
         Matrix eyeMatrix = system.eyePointTrans(eyePoint);
         string figName = "Figure" + to_string(i);
-        system.createFigure(configuration,figName, eyeMatrix);
+        system.createFigure(configuration,figName, eyeMatrix, false);
     }
     Lines2D lines2D = system.doProjection();
     Color c(backgroundcolor[0], backgroundcolor[1], backgroundcolor[2]);
     return draw2DLines(lines2D, size,c);
+}
+EasyImage drawZBufferedWireframe(const int size, const vector<double>& backgroundcolor, const ini::Configuration &configuration){
+    D3LSystem system;
+    int nrFigures = configuration["General"]["nrFigures"].as_int_or_die();
+    vector<double> eye = configuration["General"]["eye"].as_double_tuple_or_die();
+    for (int i = 0; i < nrFigures; ++i) {
+        Vector3D eyePoint;
+        eyePoint.x = eye[0];
+        eyePoint.y = eye[1];
+        eyePoint.z = eye[2];
+        Matrix eyeMatrix = system.eyePointTrans(eyePoint);
+        string figName = "Figure" + to_string(i);
+        system.createFigure(configuration,figName, eyeMatrix, true);
+    }
+    Lines2D  lines2D = system.doProjection();
+    Color c(backgroundcolor[0], backgroundcolor[1], backgroundcolor[2]);
+    return drawZBufferLines(lines2D, size, c);
+
 }
 
 img::EasyImage generate_image(const ini::Configuration &configuration){
@@ -165,7 +241,7 @@ img::EasyImage generate_image(const ini::Configuration &configuration){
         image = draw3DLSystem(size, backgroundcolor, configuration);
     }
     else if (type == "ZBufferedWireframe"){
-
+        image = drawZBufferedWireframe(size, backgroundcolor, configuration);
     }
 	return image;
 }

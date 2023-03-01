@@ -6,7 +6,7 @@
 #include <limits>
 #include <iostream>
 #include <fstream>
-#include "easy_image.h"
+#include "vector"
 #define ENGINE_ZBUFFER_H
 
 class ZBuffer: public std::vector<std::vector<double>>{

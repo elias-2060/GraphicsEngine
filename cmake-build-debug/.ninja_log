@@ -9,3 +9,11 @@
 11	766	6986138086710261	CMakeFiles/engine.dir/vector3d.cc.obj	488b5f237e973783
 14	314	6988024407707586	CMakeFiles/engine.dir/Figure.cpp.obj	80968808b0ffeb30
 3	932	6988120380265956	CMakeFiles/engine.dir/D3LSystem.cpp.obj	9e64f3a2a6ada3e1
+2	997	6993982616213623	CMakeFiles/engine.dir/easy_image.cc.obj	d15e1b752af2e1f
+7	1028	6993982616503622	CMakeFiles/engine.dir/engine.cc.obj	5c9700665bab3a69
+13	1093	6993982617143624	CMakeFiles/engine.dir/D3LSystem.cpp.obj	9e64f3a2a6ada3e1
+10	399	6993983588720752	CMakeFiles/engine.dir/ZBuffer.cpp.obj	e9df98b582c34848
+3	524	6993983589980749	CMakeFiles/engine.dir/easy_image.cc.obj	d15e1b752af2e1f
+7	763	6993983592360745	CMakeFiles/engine.dir/engine.cc.obj	5c9700665bab3a69
+14	1029	6993983595000745	CMakeFiles/engine.dir/D3LSystem.cpp.obj	9e64f3a2a6ada3e1
+1029	1633	6993983601040315	engine.exe	ad6f8e43c3ecf552
