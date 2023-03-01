@@ -197,7 +197,7 @@ EasyImage draw3DLSystem(const int size, const vector<double>& backgroundcolor, c
         eyePoint.z = eye[2];
         Matrix eyeMatrix = system.eyePointTrans(eyePoint);
         string figName = "Figure" + to_string(i);
-        system.createFigure(configuration,figName, eyeMatrix, false);
+        system.createFigure(configuration,figName, eyeMatrix);
     }
     Lines2D lines2D = system.doProjection();
     Color c(backgroundcolor[0], backgroundcolor[1], backgroundcolor[2]);
@@ -214,7 +214,7 @@ EasyImage drawZBufferedWireframe(const int size, const vector<double>& backgroun
         eyePoint.z = eye[2];
         Matrix eyeMatrix = system.eyePointTrans(eyePoint);
         string figName = "Figure" + to_string(i);
-        system.createFigure(configuration,figName, eyeMatrix, true);
+        system.createFigure(configuration,figName, eyeMatrix);
     }
     Lines2D  lines2D = system.doProjection();
     Color c(backgroundcolor[0], backgroundcolor[1], backgroundcolor[2]);
@@ -227,9 +227,8 @@ img::EasyImage generate_image(const ini::Configuration &configuration){
     string type = configuration["General"]["type"].as_string_or_die();
     int size = configuration["General"]["size"].as_int_or_die();
     vector<double> backgroundcolor = configuration["General"]["backgroundcolor"].as_double_tuple_or_die();
-    string inputfile = "2dLsystemen/";
     if (type == "2DLSystem") {
-        inputfile += configuration["2DLSystem"]["inputfile"].as_string_or_die();
+        string inputfile = configuration["2DLSystem"]["inputfile"].as_string_or_die();
         vector<double> lineColor = configuration["2DLSystem"]["color"].as_double_tuple_or_die();
         LParser::LSystem2D parser;
         ifstream input_stream(inputfile);
