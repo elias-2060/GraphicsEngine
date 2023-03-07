@@ -129,6 +129,62 @@ EasyImage drawZBufferLines(Lines2D &lines, const int size, Color &backgroundColo
     }
     return image;
 }
+EasyImage drawZBuffTriangles(D3LSystem &system, const int size, Color &backgroundColor, Lines2D &lines){
+    double xMin = lines.begin()->p1.x;
+    double xMax = lines.begin()->p1.x;
+    double yMin = lines.begin()->p1.y;
+    double yMax = lines.begin()->p1.y;
+
+    /// kleinste en grootste waarde voor x en y zoeken tussen alle punten
+    for (const auto& line : lines){
+        if (line.p1.x < xMin)
+            xMin = line.p1.x;
+        if (line.p1.x > xMax)
+            xMax = line.p1.x;
+        if (line.p1.y < yMin)
+            yMin = line.p1.y;
+        if (line.p1.y > yMax)
+            yMax = line.p1.y;
+
+        if (line.p2.x < xMin)
+            xMin = line.p2.x;
+        if (line.p2.x > xMax)
+            xMax = line.p2.x;
+        if (line.p2.y < yMin)
+            yMin = line.p2.y;
+        if (line.p2.y > yMax)
+            yMax = line.p2.y;
+    }
+    double xRange = xMax - xMin;
+    double yRange = yMax - yMin;
+    double imageX = size * (xRange / (max(xRange, yRange)));
+    double imageY = size * (yRange / (max(xRange, yRange)));
+    double d = 0.95 * (imageX / xRange);
+    EasyImage image(imageX,imageY, backgroundColor);
+    /// make all the faces in triangles
+    for (auto &figure: system.figures){
+        Faces3D newFaceFigure;
+        for (auto &face: figure.faces){
+            Faces3D newFace = system.triangulate(face);
+            for (int i = 0; i < newFace.size(); ++i) {
+                newFaceFigure.push_back(newFace[i]);
+            }
+        }
+        figure.faces = newFaceFigure;
+    }
+    double DCx = d * ((xMin + xMax) / 2);
+    double DCy = d * ((yMin + yMax) / 2);
+    double dX = imageX / 2 - DCx;
+    double dY = imageY / 2 - DCy;
+    ZBuffer buff = ZBuffer(imageX,imageY);
+
+    for (auto &figure: system.figures){
+        for (auto &face: figure.faces){
+            image.draw_zbuf_triag(buff, figure.points[face.point_indexes[0]], figure.points[face.point_indexes[1]], figure.points[face.point_indexes[2]], d, dX, dY, Color(figure.color.red, figure.color.green, figure.color.blue));
+        }
+    }
+    return image;
+}
 
 string getReplacements(const string &str, const LParser::LSystem2D &parser, int iterations){
     if (iterations == 0)
@@ -222,6 +278,24 @@ EasyImage drawZBufferedWireframe(const int size, const vector<double>& backgroun
 
 }
 
+EasyImage drawZBuffering(const int size, const vector<double>& backgroundcolor, const ini::Configuration &configuration){
+    D3LSystem system;
+    int nrFigures = configuration["General"]["nrFigures"].as_int_or_die();
+    vector<double> eye = configuration["General"]["eye"].as_double_tuple_or_die();
+    for (int i = 0; i < nrFigures; ++i) {
+        Vector3D eyePoint;
+        eyePoint.x = eye[0];
+        eyePoint.y = eye[1];
+        eyePoint.z = eye[2];
+        Matrix eyeMatrix = system.eyePointTrans(eyePoint);
+        string figName = "Figure" + to_string(i);
+        system.createFigure(configuration,figName, eyeMatrix);
+    }
+    Lines2D  lines2D = system.doProjection();
+    Color c(backgroundcolor[0], backgroundcolor[1], backgroundcolor[2]);
+    return drawZBuffTriangles(system,size,c,lines2D);
+}
+
 img::EasyImage generate_image(const ini::Configuration &configuration){
     EasyImage image;
     string type = configuration["General"]["type"].as_string_or_die();
@@ -241,6 +315,9 @@ img::EasyImage generate_image(const ini::Configuration &configuration){
     }
     else if (type == "ZBufferedWireframe"){
         image = drawZBufferedWireframe(size, backgroundcolor, configuration);
+    }
+    else if (type == "ZBuffering"){
+        image = drawZBuffering(size, backgroundcolor, configuration);
     }
 	return image;
 }

@@ -13,9 +13,8 @@
 #define ENGINE_D3LSYSTEM_H
 
 class D3LSystem{
-private:
-    Figures3D figures;
 public:
+    Figures3D figures;
     Matrix scaleFigure(const double scale);
     Matrix rotateX(const double angle);
     Matrix rotateY(const double angle);
@@ -39,6 +38,7 @@ public:
     Figure createSphere(const double radius, const int n);
     Figure createTorus(double r, double R, int n, int m);
     Vector3D rescalePoints(Vector3D &point);
+    Faces3D triangulate(const Face& face);
 };
 
 #endif //ENGINE_D3LSYSTEM_H

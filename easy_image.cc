@@ -352,6 +352,86 @@ void img::EasyImage::draw_zbuf_line(ZBuffer &zBuffer, unsigned int x0, unsigned 
         }
     }
 }
+
+void
+img::EasyImage::draw_zbuf_triag(ZBuffer &zBuffer, const Vector3D &A, const Vector3D &B, const Vector3D &C, double d,
+                                double dx, double dy, const Color &color) {
+    double Axp = (d*A.x)/(-A.z)+dx;
+    double Ayp = (d*A.y)/(-A.z)+dy;
+    Point2D Ap = Point2D(Axp, Ayp);
+
+    double Bxp = (d*B.x)/(-B.z)+dx;
+    double Byp = (d*B.y)/(-B.z)+dy;
+    Point2D Bp = Point2D(Bxp, Byp);
+
+    double Cxp = (d*C.x)/(-C.z)+dx;
+    double Cyp = (d*C.y)/(-C.z)+dy;
+    Point2D Cp = Point2D(Cxp, Cyp);
+
+    Line2D AB(Ap, Bp);
+    Line2D AC(Ap, Cp);
+    Line2D BC(Bp, Cp);
+
+    double yMinTemp = std::min(Ayp, Byp);
+    int yMin = round(std::min(yMinTemp, Cyp)+ 0.5);
+
+    double yMaxTemp = std::max(Ayp, Byp);
+    int yMax = round(std::max(yMaxTemp, Cyp)- 0.5);
+
+
+    Vector3D u = B - A;
+    Vector3D v = C - A;
+    double w1 = (u.y * v.z) - (u.z * v.y);
+    double w2 = (u.z * v.x) - (u.x * v.z);
+    double w3 = (u.x * v.y) - (u.y * v.x);
+    double k = w1 * A.x + w2 * A.y + w3 * A.z;
+    double dzdx = w1/(-(d*k));
+    double dzdy = w2/(-(d*k));
+
+    for(int yi = yMin; yi <= yMax; yi++){
+        double XLab, XLac, XLbc;
+        double XRab, XRac, XRbc;
+        XLab = XLac = XLbc = std::numeric_limits<int>::max();
+        XRab = XRac = XRbc = -std::numeric_limits<int>::max();
+
+        if((yi - AB.p1.y)*(yi - AB.p2.y) <= 0 && AB.p1.y != AB.p2.y){
+            Point2D P = AB.p1;
+            Point2D Q = AB.p2;
+            double xi = Q.x + (P.x - Q.x)*((yi-Q.y)/(P.y-Q.y));
+            XLab = XRab = xi;
+        }
+        if((yi - AC.p1.y)*(yi - AC.p2.y) <= 0 && AC.p1.y != AC.p2.y){
+            Point2D P = AC.p1;
+            Point2D Q = AC.p2;
+            double xi = Q.x + (P.x - Q.x)*((yi-Q.y)/(P.y-Q.y));
+            XLac = XRac = xi;
+        }
+        if((yi - BC.p1.y)*(yi - BC.p2.y) <= 0 && BC.p1.y != BC.p2.y){
+            Point2D P = BC.p1;
+            Point2D Q = BC.p2;
+            double xi = Q.x + (P.x - Q.x)*((yi-Q.y)/(P.y-Q.y));
+            XLbc = XRbc = xi;
+        }
+        double xlTemp = (std::min(XLab, XLac));
+        int xl = round(std::min(xlTemp, XLbc) + 0.5);
+
+        double xrTemp = (std::max(XRab, XRac));
+        int xr = round(std::max(xrTemp, XRbc) - 0.5);
+
+        double xg = (Axp + Bxp + Cxp)/3;
+        double yg = (Ayp + Byp + Cyp)/3;
+        double oneOverzg = 1/(3 * A.z) + 1/(3 * B.z) + 1/(3 * C.z);
+
+        for(int x = xl; x <= xr; x++){
+            double oneOverZ = 1.0001 * oneOverzg + (x - xg)*dzdx + (yi - yg)*dzdy;
+
+            if(oneOverZ < zBuffer.buf[x][yi]){
+                (*this)(x, yi) = color;
+                zBuffer.buf[x][yi] = oneOverZ;
+            }
+        }
+    }
+}
 std::ostream& img::operator<<(std::ostream& out, EasyImage const& image)
 {
 

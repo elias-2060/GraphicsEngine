@@ -466,3 +466,13 @@ Figure D3LSystem::createTorus(double r, double R, int n, int m) {
     }
     return figure;
 }
+
+Faces3D D3LSystem::triangulate(const Face &face) {
+    Faces3D triangles;
+    int beginPoint = face.point_indexes[0];
+    for (int i = 1; i < face.point_indexes.size() - 1; ++i) {
+        triangles.emplace_back(vector<int>({beginPoint, face.point_indexes[i], face.point_indexes[i+1]}));
+    }
+    return triangles;
+}
+

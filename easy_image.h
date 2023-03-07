@@ -24,6 +24,7 @@
 #include "cmath"
 #include "limits"
 #include "ZBuffer.h"
+#include "vector3d.h"
 /**
  * \brief The namespace of the EasyImage class
  */
@@ -106,6 +107,7 @@ namespace img
 
     class Line2D{
     public:
+        Line2D(Point2D &pf, Point2D &ps): p1(pf), p2(ps){}
         Line2D(Point2D &pf, Point2D &ps,  Color& col): p1(pf), p2(ps), color(col){}
         Point2D p1;
         Point2D p2;
@@ -264,8 +266,8 @@ namespace img
 			 * 	assert(y1 < getHeight())
 			 */
 			void draw_line(unsigned int x0, unsigned int y0, unsigned int x1, unsigned int y1, Color color);
-        void draw_zbuf_line(ZBuffer &zBuffer, const unsigned int x0, const unsigned int y0, const double z0, const unsigned int x1, const unsigned int y1, const double z1, const Color &color);
-
+            void draw_zbuf_line(ZBuffer &zBuffer, const unsigned int x0, const unsigned int y0, const double z0, const unsigned int x1, const unsigned int y1, const double z1, const Color &color);
+            void draw_zbuf_triag(ZBuffer& zBuffer, Vector3D const& A, Vector3D const& B, Vector3D const& C, double d, double dx, double dy, const Color &color);
 		private:
 			friend std::istream& operator>>(std::istream& in, EasyImage & image);
 			/**
