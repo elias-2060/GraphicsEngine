@@ -177,7 +177,7 @@ EasyImage drawZBuffTriangles(D3LSystem &system, const int size, Color &backgroun
     double dX = imageX / 2 - DCx;
     double dY = imageY / 2 - DCy;
     ZBuffer buff = ZBuffer(imageX,imageY);
-
+    /// draw the triangles
     for (auto &figure: system.figures){
         for (auto &face: figure.faces){
             image.draw_zbuf_triag(buff, figure.points[face.point_indexes[0]], figure.points[face.point_indexes[1]], figure.points[face.point_indexes[2]], d, dX, dY, Color(figure.color.red, figure.color.green, figure.color.blue));
