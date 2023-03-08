@@ -356,27 +356,24 @@ void img::EasyImage::draw_zbuf_line(ZBuffer &zBuffer, unsigned int x0, unsigned 
 void
 img::EasyImage::draw_zbuf_triag(ZBuffer &zBuffer, const Vector3D &A, const Vector3D &B, const Vector3D &C, double d,
                                 double dx, double dy, const Color &color) {
-    double Axp = (d*A.x)/(-A.z)+dx;
-    double Ayp = (d*A.y)/(-A.z)+dy;
-    Point2D Ap = Point2D(Axp, Ayp);
+    double aX = (d * A.x) / (-A.z) + dx;
+    double aY = (d * A.y) / (-A.z) + dy;
+    Point2D pointA = Point2D(aX, aY);
 
-    double Bxp = (d*B.x)/(-B.z)+dx;
-    double Byp = (d*B.y)/(-B.z)+dy;
-    Point2D Bp = Point2D(Bxp, Byp);
+    double bX = (d * B.x) / (-B.z) + dx;
+    double bY = (d * B.y) / (-B.z) + dy;
+    Point2D pointB = Point2D(bX, bY);
 
-    double Cxp = (d*C.x)/(-C.z)+dx;
-    double Cyp = (d*C.y)/(-C.z)+dy;
-    Point2D Cp = Point2D(Cxp, Cyp);
+    double cX = (d * C.x) / (-C.z) + dx;
+    double cY = (d * C.y) / (-C.z) + dy;
+    Point2D pointC = Point2D(cX, cY);
 
-    Line2D AB(Ap, Bp);
-    Line2D AC(Ap, Cp);
-    Line2D BC(Bp, Cp);
+    Line2D aToB(pointA, pointB);
+    Line2D aToC(pointA, pointC);
+    Line2D bToC(pointB, pointC);
 
-    double yMinTemp = std::min(Ayp, Byp);
-    int yMin = round(std::min(yMinTemp, Cyp)+ 0.5);
-
-    double yMaxTemp = std::max(Ayp, Byp);
-    int yMax = round(std::max(yMaxTemp, Cyp)- 0.5);
+    int yMin = round(std::min(std::min(aY, bY), cY) + 0.5);
+    int yMax = round(std::max(std::max(aY, bY), cY) - 0.5);
 
 
     Vector3D u = B - A;
@@ -394,40 +391,37 @@ img::EasyImage::draw_zbuf_triag(ZBuffer &zBuffer, const Vector3D &A, const Vecto
         XLab = XLac = XLbc = std::numeric_limits<int>::max();
         XRab = XRac = XRbc = -std::numeric_limits<int>::max();
 
-        if((yi - AB.p1.y)*(yi - AB.p2.y) <= 0 && AB.p1.y != AB.p2.y){
-            Point2D P = AB.p1;
-            Point2D Q = AB.p2;
+        if((yi - aToB.p1.y) * (yi - aToB.p2.y) <= 0 && aToB.p1.y != aToB.p2.y){
+            Point2D P = aToB.p1;
+            Point2D Q = aToB.p2;
             double xi = Q.x + (P.x - Q.x)*((yi-Q.y)/(P.y-Q.y));
             XLab = XRab = xi;
         }
-        if((yi - AC.p1.y)*(yi - AC.p2.y) <= 0 && AC.p1.y != AC.p2.y){
-            Point2D P = AC.p1;
-            Point2D Q = AC.p2;
+        if((yi - aToC.p1.y) * (yi - aToC.p2.y) <= 0 && aToC.p1.y != aToC.p2.y){
+            Point2D P = aToC.p1;
+            Point2D Q = aToC.p2;
             double xi = Q.x + (P.x - Q.x)*((yi-Q.y)/(P.y-Q.y));
             XLac = XRac = xi;
         }
-        if((yi - BC.p1.y)*(yi - BC.p2.y) <= 0 && BC.p1.y != BC.p2.y){
-            Point2D P = BC.p1;
-            Point2D Q = BC.p2;
+        if((yi - bToC.p1.y) * (yi - bToC.p2.y) <= 0 && bToC.p1.y != bToC.p2.y){
+            Point2D P = bToC.p1;
+            Point2D Q = bToC.p2;
             double xi = Q.x + (P.x - Q.x)*((yi-Q.y)/(P.y-Q.y));
             XLbc = XRbc = xi;
         }
-        double xlTemp = (std::min(XLab, XLac));
-        int xl = round(std::min(xlTemp, XLbc) + 0.5);
+        int xl = round(std::min(std::min(XLab, XLac), XLbc) + 0.5);
+        int xr = round(std::max(std::max(XRab, XRac), XRbc) - 0.5);
 
-        double xrTemp = (std::max(XRab, XRac));
-        int xr = round(std::max(xrTemp, XRbc) - 0.5);
-
-        double xg = (Axp + Bxp + Cxp)/3;
-        double yg = (Ayp + Byp + Cyp)/3;
-        double oneOverzg = 1/(3 * A.z) + 1/(3 * B.z) + 1/(3 * C.z);
+        double xg = (aX + bX + cX) / 3;
+        double yg = (aY + bY + cY) / 3;
+        double tempZ = 1 / (3 * A.z) + 1 / (3 * B.z) + 1 / (3 * C.z);
 
         for(int x = xl; x <= xr; x++){
-            double oneOverZ = 1.0001 * oneOverzg + (x - xg)*dzdx + (yi - yg)*dzdy;
+            double zR = 1.0001 * tempZ + (x - xg) * dzdx + (yi - yg) * dzdy;
 
-            if(oneOverZ < zBuffer.buf[x][yi]){
+            if(zR < zBuffer.buf[x][yi]){
                 (*this)(x, yi) = color;
-                zBuffer.buf[x][yi] = oneOverZ;
+                zBuffer.buf[x][yi] = zR;
             }
         }
     }
